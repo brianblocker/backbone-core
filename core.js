@@ -1,7 +1,7 @@
 ( function() {
-	"use_strict";
+  "use_strict";
 
-	var App = { Collections : {}, Models : {}, Views : {}, Routers : {}, Mixins : {}, router : false, data : {}, view : false, __CONST__ : {} }
+  var App = { Collections : {}, Models : {}, Views : {}, Routers : {}, Mixins : {}, router : false, data : {}, view : false, __CONST__ : {} }
 
   App.__CONST__.CSS = {
     transition_end : 'webkitTransitionEnd.transition_end mozTransitionEnd.transition_end oTransitionEnd.transition_end msTransitionEnd.transition_end transitionend.transition_end'
@@ -9,16 +9,16 @@
 
   Backbone.Model = Backbone.Model.extend( {
     children : null,
-    initialize : function( options ) {
-      this.beforeInitialize( options );
+    initialize : function( attributes, options ) {
+      this.beforeInitialize( attributes, options );
       
       if ( this.children ) {
         _.each( this.children, function( property, path ) {
-          this._childBuilder( property, path, options );
+          this._childBuilder( property, path, attributes, options );
         }, this )
       }
 
-      this.afterInitialize( options );
+      this.afterInitialize( attributes, options );
     },
     validate : function( attributes ) {
       if ( this.validation_rules && attributes ) {
@@ -33,9 +33,19 @@
           return errors.report()
       }
     },
+    toJSON : function() {
+      var JSON = _.clone( this.attributes );
+      
+      _.each( this.children, function( property ) {
+        if ( typeof JSON[ property ] !== 'undefined' )
+          JSON[ property ] = JSON[ property ].toJSON() 
+      }, this );
+
+      return JSON;
+    },
     beforeInitialize : function() {},
     afterInitialize : function() {},
-    _childBuilder : function( property, path, options ) {
+    _childBuilder : function( property, path, attributes, options ) {
       var parts = path.replace( /\s/g, '' ).split( '.' )
       ,   child = App;
 
@@ -182,5 +192,5 @@
     }
   })
 
-	return window.App = App;
+  return window.App = App;
 })();
