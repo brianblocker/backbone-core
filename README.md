@@ -12,7 +12,17 @@ This core file adds some functionality that has made my life much, much easier. 
 First thing's first. The App object is how I organize the entire App. All models, views, collections, routers, mixins, etc are organized in this object:
 
 ```javascript
-  var App = { Collections : {}, Models : {}, Views : {}, Routers : {}, Mixins : {}, router : false, data : {}, view : false, __CONST__ : {} }
+  var App = { 
+    Collections : {}, 
+    Models : {}, 
+    Views : {}, 
+    Routers : {}, 
+    Mixins : {}, 
+    router : false, 
+    data : {}, 
+    view : false, 
+    __CONST__ : {}
+  }
 ```
 
 By wrapping all of our code in a self-executing function (we could call this a closure), we can avoid some challenges with name collisions and variable scope and other nonsense that cause problems. This isn't the place to address those, let's just identify what I'm talking about so we can move forward.
@@ -30,7 +40,9 @@ function dissMama() {
 dissMama(); // Joe has a fat mama
 dissMama(); // Joe has a fat mama
 
-// This is not going to do anything since a new variable named joe has been created, but it's scope is only for the changeJoe() function
+// This is not going to do anything since a new variable 
+// named joe has been created, but it's scope is only for 
+// the changeJoe() function
 function changeJoe() {
   var joe = 'daddy';
 }
@@ -39,7 +51,8 @@ changeJoe(); // returns nothing, doesn't do anything to the joe variable that wa
 changeJoe(); // you guessed it, still doesn't do anything
 dissMama(); // Joe has a fat mama
 
-// This is going to change the value of joe since it refers to the ALREADY CREATED, global variable joe.
+// This is going to change the value of joe since it refers 
+// to the ALREADY CREATED, global variable joe.
 function reallyChangeJoe() {
   joe = 'daddy';
 }
@@ -65,9 +78,48 @@ function someFunction() {
 
 someFunction();
 
-// OH SNAP.
+// OH SNAP. But what if I need the variable 'joe' to 
+// be accessible OUTSIDE of said closure?
+
+console.log( joe ); // undefined
+
+( function() {
+  var joe = 'mama';
+
+  window.joe = joe;
+})()
+
+console.log( joe ); // mama
+
+// now we can access the 'joe' variable because we 
+// explicitly set it to be global. We could also 
+// have done this, just for clarity's sake:
+
+console.log( ben ) // undefined
+console.log( dover ) // undefined
+
+( function() {
+  var ben = 'jerry'
+  
+  window.dover = ben;
+})()
+
+console.log( ben ) // undefined
+console.log( dover ) // jerry
 
 ```
 
 Easy to understand, right? Good. If you don't understand this, you're going to need to spend some time in google, searching for the answers to your questions. We've got to move on.
 
+## Back to the Bone
+
+So we are going to create a closure that exposes only a single App object to the global scope. You've already seen this App object, which again stores all of the Collections, Models, Views, Routers, etc.
+
+Also inside of this closure, I have modified Backbone's Model and View objects. Let's breakdown the changes to the Backbone Model.
+
+### Children
+```javascript
+children : null
+```
+
+This is setup similar to how events are created in a view.
